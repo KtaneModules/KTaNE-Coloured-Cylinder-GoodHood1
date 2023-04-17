@@ -21,4 +21,4 @@ MonoBehaviour:
     Made by GoodHood'
   version: 1.0
   outputFolder: build
-  previewImage: {fileID: 0}
+  previewImage: {fileID: 2800000, guid: 1fe241f9cd603804593bbcfb7d4f2008, type: 3}

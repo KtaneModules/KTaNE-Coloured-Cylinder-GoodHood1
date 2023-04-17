@@ -13,6 +13,7 @@ public class colouredCylinder : MonoBehaviour
     public KMBombInfo Bomb;
     public KMAudio Audio;
     public KMColorblindMode Colorblind;
+    public KMBombModule Module;
 
     public TextMesh[] colorblindTexts; //Main, Top, mid, bottom
 
@@ -51,6 +52,7 @@ public class colouredCylinder : MonoBehaviour
 
     int[] possibleAnswerVals = new int[6];
 
+    Color colorOnSubmit;
 
     string[,] data = {
         {"1", "0", "1", "1", "0", "1", "1" },
@@ -176,19 +178,12 @@ public class colouredCylinder : MonoBehaviour
         if (inputs == 6 && inputtedNumber == targetNumber)
         {
             Log("You have achieved the target number in 6 moves. Solve!");
-            Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.CorrectChime, button.transform);
-            GetComponent<KMBombModule>().HandlePass();
+            colorOnSubmit = mainMaterial.material.color;
             StopAllCoroutines();
-            ModuleSolved = true;
+            StartCoroutine("SolveFade");
+            StartCoroutine("SmallSolveAnim");
             foreach (TextMesh text in colorblindTexts)
-            {
                 text.text = "";
-            }
-            mainMaterial.material.color = Color.green;
-            foreach (Renderer mat in smallMaterials)
-            {
-                mat.material.color = Color.green;
-            }
 
         }
 
@@ -262,11 +257,55 @@ public class colouredCylinder : MonoBehaviour
                 else colorblindTexts[0].color = Color.white;
                 colorblindTexts[0].text = colorNamesListFirst[colourIndexes[i]];
                 yield return new WaitForSeconds(0.7f);
+
+                float delta = 0;
+                float duration = 0.2f;
+                Color previousColour;
+                if (i - 1 < 0)
+                    previousColour = validColours[colourIndexes.Last()];
+                else
+                    previousColour = validColours[colourIndexes[i-1]];
+                while (delta < duration)
+                {
+                    delta += Time.deltaTime;
+                    yield return null;
+                    mainMaterial.material.color = Color.Lerp(previousColour, validColours[colourIndexes[i]], delta / duration);
+                }
             }
             mainMaterial.material.color = neutralColour;
             colorblindTexts[0].text = "";
             yield return new WaitForSeconds(0.7f);
         }
+    }
+
+    IEnumerator SolveFade()
+    {
+        float delta = 0;
+        float duration = 1f;
+        Color start = colorOnSubmit;
+        while (delta < duration)
+        {
+            delta += Time.deltaTime;
+            yield return null;
+            mainMaterial.material.color = Color.Lerp(start, Color.green, delta / duration);
+        }
+        GetComponent<KMBombModule>().HandlePass();
+        ModuleSolved = true;
+    }
+
+    IEnumerator SmallSolveAnim()
+    {
+        yield return new WaitForSeconds(0.3333f);
+        smallMaterials[0].material.color = Color.green;
+        Audio.PlaySoundAtTransform("toneL", Module.transform);
+        yield return new WaitForSeconds(0.3333f);
+        smallMaterials[1].material.color = Color.green;
+        Audio.PlaySoundAtTransform("toneM", Module.transform);
+        yield return new WaitForSeconds(0.3333f);
+        smallMaterials[2].material.color = Color.green;
+        Audio.PlaySoundAtTransform("toneH", Module.transform);
+        
+
     }
 
     void Update()
