@@ -257,24 +257,7 @@ public class colouredCylinder : MonoBehaviour
                 else colorblindTexts[0].color = Color.white;
                 colorblindTexts[0].text = colorNamesListFirst[colourIndexes[i]];
                 yield return new WaitForSeconds(0.7f);
-
-                float delta = 0;
-                float duration = 0.2f;
-                Color previousColour;
-                if (i - 1 < 0)
-                    previousColour = validColours[colourIndexes.Last()];
-                else
-                    previousColour = validColours[colourIndexes[i-1]];
-                while (delta < duration)
-                {
-                    delta += Time.deltaTime;
-                    yield return null;
-                    mainMaterial.material.color = Color.Lerp(previousColour, validColours[colourIndexes[i]], delta / duration);
-                }
             }
-            mainMaterial.material.color = neutralColour;
-            colorblindTexts[0].text = "";
-            yield return new WaitForSeconds(0.7f);
         }
     }
 
